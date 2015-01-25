@@ -14,7 +14,7 @@ const (
 )
 
 var (
-	pathRegexp     = regexp.MustCompile(`/(?:(:[\w-]+)|(\*[\w-/]+)|[\w-]*)`)
+	pathRegexp     = regexp.MustCompile(`/(?:(:[\w-]+)|(\*[\w-/]+)|[^/\*:]*)`)
 	paramRegexpStr = map[byte]string{
 		':': `[\w-]*`,
 		'*': `[\w-/.]*`,
@@ -27,7 +27,7 @@ type Regexp struct {
 }
 
 // New returns a new Regexp.
-func New() *Regexp {
+func NewReg() *Regexp {
 	return &Regexp{}
 }
 
@@ -85,6 +85,7 @@ func build(path string, data interface{}) (*route, error) {
 		}
 		buf.WriteString(fmt.Sprintf(`/(?P<%s>%s)`, regexp.QuoteMeta(name), pathReStr))
 	}
+
 	reg, err := regexp.Compile(fmt.Sprintf(`^%s$`, buf.String()))
 	if err != nil {
 		return nil, err
@@ -103,7 +104,7 @@ type RegexpRouter struct{}
 
 // New returns a new URLRouter that implemented by Regular-Expression.
 func (router *RegexpRouter) New() urlrouter.URLRouter {
-	return New()
+	return NewReg()
 }
 
 func init() {
